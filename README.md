@@ -12,7 +12,7 @@ Why - This is a fully generated server - It acts as a socket director between a 
 
 [RMQ] -> [this server] -(*n)-> [Socket Nodes] -(*n)-> [End users (eg browsers)]
 
-If you app has too many connection for a single socket director, you will have to introduce a load-balancer between many directors and many nodes.
+If your app has too many connections for a single socket director, you will have to introduce a load-balancer between many directors and many nodes.
 
 ## How
 Create a new repo, run `npm init` then add this single line to your package json file: 
