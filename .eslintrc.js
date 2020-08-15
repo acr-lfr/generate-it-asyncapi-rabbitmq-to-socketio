@@ -5,10 +5,7 @@ module.exports = {
   // Which files to not lint
   ignorePatterns: [
     'node_modules',
-    'src/domains/__mocks__/**/*',
-    'src/http/nodegen/**/*.*',
-    'src/services/image-write/**/*.*',
-    'src/events/rabbitMQ/*.*',
+    'src/rabbitMQ/**/*.*',
   ],
 
   parserOptions: {
