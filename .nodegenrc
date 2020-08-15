@@ -1,6 +1,6 @@
 {
-  "nodegenDir": "rabbitMQ",
-  "nodegenMockDir": "/__mocks__",
+  "nodegenDir": "src/rabbitMQ",
+  "nodegenMockDir": "src/rabbitMQ/__mocks__",
   "nodegenType": "server",
   "helpers": {
     "subscribeOpIds": [
