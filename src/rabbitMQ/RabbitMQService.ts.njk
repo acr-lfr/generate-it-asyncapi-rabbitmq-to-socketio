@@ -1,0 +1,61 @@
+import { QWrapperDomain } from 'q-wrapper';
+import { QWrapperSettings } from 'q-wrapper/lib/models';
+import { Message as amqMessage } from 'amqplib/callback_api';
+import eventBus from '@/utils/eventBus';
+import { EventBusEventsEnum, IEventBusEventRabbitMq } from '@/enums/eventBusEvents';
+import * as operationIds from './operationIds';
+{% for path, channel in swagger.channels -%}
+{% if channel.publish and _.includes(nodegenRc.helpers.subscribeOpIds, channel.publish.operationId) -%}
+import {{ channel.publish.operationId }}ReactHandle from '../reactHandles/{{ ucFirst(channel.publish.operationId) }}ReactHandle';
+{% endif -%}
+{% endfor %}
+
+class RabbitMQService {
+  async setup (qWrapperSettings: QWrapperSettings): Promise<void> {
+    global.qWrapper = new QWrapperDomain(qWrapperSettings);
+    await global.qWrapper.initialize();
+    this.subscribe();
+    console.log('RabbitMQService.setup completed.')
+  }
+  setupCheck (): void {
+    if (!global.qWrapper) {
+      throw new Error('Ensure you call the setup method 1st before calling anything else from this class and call it only once.');
+    }
+  }
+
+  /**
+   * All subscribe events get handled in the respective subscribeHandles
+   * Each routing key is the operation id.
+   * For any routing key not subscribed to, the item from the is simply marked
+   * as processed for the queue this ms is bound to.
+   */
+  private subscribe (): void {
+    global.qWrapper.consume(async (message: amqMessage) => {
+      switch (message.fields.routingKey) {
+        {% for path, channel in swagger.channels -%}
+        {% if channel.publish and _.includes(nodegenRc.helpers.subscribeOpIds, channel.publish.operationId) -%}
+        {% set channelId = _.toUpper(channel.publish.operationId) -%}
+        case operationIds.{{ channelId }}: {
+          let messageContent
+          try{
+            messageContent = JSON.parse(message.content.toString())
+          } catch (e) {
+            console.error(operationIds.{{ channelId }}, ' error parsing JSON: ', e);
+            return { processed: false, requeue: true };
+          }
+          eventBus.emit(EventBusEventsEnum.RabbitMq, { operationIds.{{ channelId }}, messageContent } as IEventBusEventRabbitMq);
+        }
+        {% endif -%}
+        {% endfor -%}
+        // Else do nothing but acknowledge receipt to the Q
+        default:
+          return {
+            processed: true,
+            requeue: false
+          };
+      }
+    });
+  }
+}
+
+export default new RabbitMQService();
