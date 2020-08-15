@@ -1,5 +1,5 @@
 import config from '@/config';
-import RabbitMQService from '@/events/rabbitMQ/RabbitMQService';
+import RabbitMQService from '@/rabbitMQ/RabbitMQService';
 import ioserver, { Socket } from 'socket.io';
 import eventBus from '@/utils/eventBus';
 import { EventBusEventsEnum, IEventBusEventRabbitMq } from '@/enums/eventBusEvents';

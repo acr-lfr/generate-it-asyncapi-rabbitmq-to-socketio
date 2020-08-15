@@ -4,11 +4,6 @@ import { Message as amqMessage } from 'amqplib/callback_api';
 import eventBus from '@/utils/eventBus';
 import { EventBusEventsEnum, IEventBusEventRabbitMq } from '@/enums/eventBusEvents';
 import * as operationIds from './operationIds';
-{% for path, channel in swagger.channels -%}
-{% if channel.publish and _.includes(nodegenRc.helpers.subscribeOpIds, channel.publish.operationId) -%}
-import {{ channel.publish.operationId }}ReactHandle from '../reactHandles/{{ ucFirst(channel.publish.operationId) }}ReactHandle';
-{% endif -%}
-{% endfor %}
 
 class RabbitMQService {
   async setup (qWrapperSettings: QWrapperSettings): Promise<void> {
@@ -43,7 +38,7 @@ class RabbitMQService {
             console.error(operationIds.{{ channelId }}, ' error parsing JSON: ', e);
             return { processed: false, requeue: true };
           }
-          eventBus.emit(EventBusEventsEnum.RabbitMq, { operationIds.{{ channelId }}, messageContent } as IEventBusEventRabbitMq);
+          eventBus.emit(EventBusEventsEnum.RabbitMq, { operationId: 'operationIds.{{ channelId }}', payload: messageContent } as IEventBusEventRabbitMq);
         }
         {% endif -%}
         {% endfor -%}
