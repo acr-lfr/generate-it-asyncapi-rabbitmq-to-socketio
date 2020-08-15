@@ -38,7 +38,10 @@ class RabbitMQService {
             console.error(operationIds.{{ channelId }}, ' error parsing JSON: ', e);
             return { processed: false, requeue: true };
           }
-          eventBus.emit(EventBusEventsEnum.RabbitMq, { operationId: 'operationIds.{{ channelId }}', payload: messageContent } as IEventBusEventRabbitMq);
+          eventBus.emit(EventBusEventsEnum.RabbitMq, {
+            operationId: operationIds.{{ channelId }},
+            payload: messageContent } as IEventBusEventRabbitMq
+          );
         }
         {% endif -%}
         {% endfor -%}
