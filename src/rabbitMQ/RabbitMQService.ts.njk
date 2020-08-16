@@ -43,7 +43,6 @@ class RabbitMQService {
             payload: messageContent } as IEventBusEventRabbitMq
           );
           return { processed: true, requeue: false};
-          break;
         }
         {% endif -%}
         {% endfor -%}
