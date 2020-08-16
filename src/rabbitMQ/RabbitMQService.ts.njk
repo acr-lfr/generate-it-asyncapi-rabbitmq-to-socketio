@@ -42,6 +42,7 @@ class RabbitMQService {
             operationId: operationIds.{{ channelId }},
             payload: messageContent } as IEventBusEventRabbitMq
           );
+          return { processed: true, requeue: false};
           break;
         }
         {% endif -%}
