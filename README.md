@@ -45,6 +45,7 @@ After initial generation, open the .nodegenrc file and enter all operationIds fr
 }
 ```
 
-## Output
+## Things you need to change to use this tpl
 
-A comple
+- The nodegenrc file - you should input your own asyncapi operation ids to bind to.
+- `src/config.ts` the rabbitmq section should be customised.
