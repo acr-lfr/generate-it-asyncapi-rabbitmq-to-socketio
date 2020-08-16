@@ -6,10 +6,10 @@ import { EventBusEventsEnum, IEventBusEventRabbitMq } from '@/enums/eventBusEven
 import * as operationIds from './operationIds';
 
 class RabbitMQService {
-  async setup (qWrapperSettings: QWrapperSettings): Promise<void> {
+  async setup (qWrapperSettings: QWrapperSettings, verbose = false): Promise<void> {
     global.qWrapper = new QWrapperDomain(qWrapperSettings);
     await global.qWrapper.initialize();
-    this.subscribe();
+    this.subscribe(verbose);
     console.log('RabbitMQService.setup completed.')
   }
   setupCheck (): void {
@@ -24,7 +24,7 @@ class RabbitMQService {
    * For any routing key not subscribed to, the item from the is simply marked
    * as processed for the queue this ms is bound to.
    */
-  private subscribe (): void {
+  private subscribe (verbose: boolean): void {
     global.qWrapper.consume(async (message: amqMessage) => {
       switch (message.fields.routingKey) {
         {% for path, channel in swagger.channels -%}
@@ -38,10 +38,11 @@ class RabbitMQService {
             console.error(operationIds.{{ channelId }}, ' error parsing JSON: ', e);
             return { processed: false, requeue: true };
           }
-          eventBus.emit(EventBusEventsEnum.RabbitMq, {
-            operationId: operationIds.{{ channelId }},
-            payload: messageContent } as IEventBusEventRabbitMq
-          );
+          const eventPayload = { operationId: operationIds.{{ channelId }}, payload: messageContent } as IEventBusEventRabbitMq
+          eventBus.emit(EventBusEventsEnum.RabbitMq, eventPayload);
+          if(verbose){
+            console.log(eventPayload)
+          }
           return { processed: true, requeue: false};
         }
         {% endif -%}
