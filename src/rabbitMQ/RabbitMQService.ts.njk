@@ -12,11 +12,6 @@ class RabbitMQService {
     this.subscribe(verbose);
     console.log('RabbitMQService.setup completed.')
   }
-  setupCheck (): void {
-    if (!global.qWrapper) {
-      throw new Error('Ensure you call the setup method 1st before calling anything else from this class and call it only once.');
-    }
-  }
 
   /**
    * All subscribe events get handled in the respective subscribeHandles
