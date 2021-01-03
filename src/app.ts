@@ -1,29 +1,22 @@
 import config from '@/config';
 import RabbitMQService from '@/rabbitMQ/RabbitMQService';
-import ioserver, { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import eventBus from '@/utils/eventBus';
 import { EventBusEventsEnum, IEventBusEventRabbitMq } from '@/enums/eventBusEvents';
 
-export default (): Promise<ioserver.Server> => {
-  return new Promise((resolve, reject) => {
-    Promise.all([
-      RabbitMQService.setup(config.rabbitMQ),
-    ]).then(() => {
+export default async (): Promise<Server> => {
+  await RabbitMQService.setup(config.rabbitMQ);
 
-      // Create the SocketIO server (ie what this node is)
-      const io = ioserver();
+  // Create the SocketIO server (ie what this node is)
+  const io = new Server();
 
-      io.on('connection', (socket: Socket) => {
-        console.log('Client connected with id: ' + socket.client.id);
-      });
-
-      eventBus.on(EventBusEventsEnum.RabbitMq, (payload: IEventBusEventRabbitMq) => {
-        io.emit(payload.operationId, payload.payload);
-      });
-
-      return resolve(io);
-    }).catch((e) => {
-      return reject(e);
-    });
+  io.on('connection', (socket: Socket) => {
+    console.log('Client connected to the director with id: ' + socket.id);
   });
+
+  eventBus.on(EventBusEventsEnum.RabbitMq, (payload: IEventBusEventRabbitMq) => {
+    io.emit(payload.operationId, payload.payload);
+  });
+
+  return io;
 }
